@@ -4,14 +4,16 @@ const $basketAsideSize = document.querySelector(".basket-aside-size");
 const $emptyBasket = document.querySelector(".empty-basket");
 const $basketsWithPizza = document.querySelector(".baskets-with-pizza");
 const $basketProducts = document.querySelector(".basket-products");
+const $totalOrderPrice = document.querySelector(".total-order-price");
 
 let cartSize = 0;
+let cartTotalPrice = 0;
 let cart = [];
 
 // Getting the products through the API
 async function getProducts() {
-  const res = await fetch("http://10.59.122.150:3000/products");
-  // const res = await fetch("../api/products.json");
+  // const res = await fetch("http://10.59.122.27:3000/products");
+  const res = await fetch("../api/products.json");
   const data = await res.json();
 
   createProducts(data);
@@ -79,6 +81,13 @@ function createProducts(products) {
       "basket-product-details-total-price"
     );
 
+    const $newBasketProductRemoveIcon = document.createElement("img");
+    $newBasketProductRemoveIcon.classList.add("basket-product-remove-icon");
+    $newBasketProductRemoveIcon.setAttribute(
+      "src",
+      "../images/remove-icon.svg"
+    );
+
     // Even listener on new add to cart btns
     $newAddToCartBtn.addEventListener("click", (e) => {
       e.preventDefault();
@@ -108,6 +117,7 @@ function createProducts(products) {
       $newBasketProductDetails.appendChild($newBasketProductDetailsQuantity);
       $newBasketProductDetails.appendChild($newBasketProductDetailsUnitPrice);
       $newBasketProductDetails.appendChild($newBasketProductDetailsTotalPrice);
+      $newBasketProductItem.appendChild($newBasketProductRemoveIcon);
       $basketProducts.appendChild($newBasketProductItem);
 
       console.log(cart);
@@ -134,8 +144,6 @@ function createProducts(products) {
 
         const item = cart.find((item) => item.id === product.id);
 
-        // $newBasketProductDetailsQuantity.textContent = `${item.count}x`;
-
         cart.splice(cart.indexOf(item), 1);
 
         console.log(cart);
@@ -150,8 +158,6 @@ function createProducts(products) {
           parseInt($newAddedToCartBtn.textContent) - 1;
 
         const item = cart.find((item) => item.id === product.id);
-
-        // $newBasketProductDetailsQuantity.textContent = `${item.count}x`;
 
         item.count--;
 
@@ -182,6 +188,24 @@ function createProducts(products) {
         item,
         $newBasketProductDetailsQuantity,
         $newBasketProductDetailsTotalPrice
+      );
+    });
+
+    // Event listener on reset cart item btn
+    $newBasketProductRemoveIcon.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const item = cart.find((item) => item.id === product.id);
+
+      resetCartItem(
+        item,
+        $newBasketProductDetailsQuantity,
+        $newBasketProductDetailsTotalPrice,
+        $newPizzaPicture,
+        $newAddedToCartBtn,
+        $newAddToCartBtn,
+        $newAddToCartCount,
+        $newBasketProductItem
       );
     });
 
@@ -236,6 +260,9 @@ function addCartSize(
   $newBasketProductDetailsTotalPrice.textContent = `$${
     item.price * item.count
   }.00`;
+
+  cartTotalPrice += item.price;
+  $totalOrderPrice.textContent = `$${cartTotalPrice}.00`;
 }
 
 function substractCartSize(
@@ -246,12 +273,12 @@ function substractCartSize(
   if (cartSize === 1) {
     $emptyBasket.classList.remove("hidden");
     $basketsWithPizza.classList.add("hidden");
+
+    cartTotalPrice = 0;
+    $totalOrderPrice.textContent = `$${cartTotalPrice}.00`;
   }
 
-  if (cartSize === 0) {
-    cartSize = 0;
-    console.log(`Cart size is already ${cartSize}`);
-  } else {
+  if (cartSize !== 0) {
     cartSize--;
     $basketAsideSize.textContent = cartSize;
 
@@ -259,7 +286,55 @@ function substractCartSize(
     $newBasketProductDetailsTotalPrice.textContent = `$${
       item.price * item.count
     }.00`;
+
+    console.log(cartTotalPrice);
+    console.log(item.price);
+
+    if (cartSize !== 0) {
+      cartTotalPrice -= item.price;
+      $totalOrderPrice.textContent = `$${cartTotalPrice}.00`;
+    }
+
+    console.log(cartTotalPrice);
+  } else {
+    cartSize = 0;
+    console.log(`Cart size is already ${cartSize}`);
   }
+}
+
+function resetCartItem(
+  item,
+  $newBasketProductDetailsQuantity,
+  $newBasketProductDetailsTotalPrice,
+  $newPizzaPicture,
+  $newAddedToCartBtn,
+  $newAddToCartBtn,
+  $newAddToCartCount,
+  $newBasketProductItem
+) {
+  $newPizzaPicture.classList.remove("pizza-picture-active");
+  $newAddedToCartBtn.classList.add("hidden");
+  $newAddToCartBtn.classList.remove("hidden");
+  $newAddToCartCount.textContent = "1";
+  cartSize -= item.count;
+  $basketAsideSize.textContent = cartSize;
+
+  if (cartSize === 0) {
+    $emptyBasket.classList.remove("hidden");
+    $basketsWithPizza.classList.add("hidden");
+
+    cartTotalPrice = 0;
+    $totalOrderPrice.textContent = `$${cartTotalPrice}.00`;
+  } else {
+    cartTotalPrice -= item.price * item.count;
+    $totalOrderPrice.textContent = `$${cartTotalPrice}.00`;
+  }
+
+  $newBasketProductItem.remove();
+
+  cart.splice(cart.indexOf(item), 1);
+
+  console.log(cart);
 }
 
 // Document startup / cleanup

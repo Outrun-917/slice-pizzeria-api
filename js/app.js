@@ -7,6 +7,10 @@ const $basketProducts = document.querySelector(".basket-products");
 const $totalOrderPrice = document.querySelector(".total-order-price");
 const $confirmOrderBtn = document.querySelector(".confirm-order-btn");
 
+const $orderModalWrapper = document.querySelector(".order-modal-wrapper");
+const $orderDetail = document.querySelector(".order-detail");
+const $newOrderBtn = document.querySelector(".new-order-btn");
+
 let cartSize = 0;
 let cartTotalPrice = 0;
 let cart = [];
@@ -75,7 +79,7 @@ async function sendOrder(order) {
   );
   const data = await res.json();
 
-  console.log(data);
+  return data.products;
 }
 
 async function manageOrderContent() {
@@ -274,14 +278,29 @@ function createProducts(products) {
 
       resetCartItem(
         item,
-        $newBasketProductDetailsQuantity,
-        $newBasketProductDetailsTotalPrice,
         $newPizzaPicture,
         $newAddedToCartBtn,
         $newAddToCartBtn,
         $newAddToCartCount,
         $newBasketProductItem
       );
+    });
+
+    $newOrderBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      const item = cart.find((item) => item.id === product.id);
+
+      resetCartItem(
+        item,
+        $newPizzaPicture,
+        $newAddedToCartBtn,
+        $newAddToCartBtn,
+        $newAddToCartCount,
+        $newBasketProductItem
+      );
+
+      $orderModalWrapper.classList.add("hidden");
     });
 
     const $newCartPicture = document.createElement("img");
@@ -320,6 +339,69 @@ function createProducts(products) {
     $newPizzaInfos.appendChild($newPizzaName);
     $newPizzaInfos.appendChild($newPizzaPrice);
     $pizzasWrapper.appendChild($newPizzaItem);
+  });
+}
+
+function createModalContent(orders) {
+  let totalPrice = 0;
+
+  const $newOrderDetailTotalPrice = document.createElement("li");
+  $newOrderDetailTotalPrice.classList.add("order-detail-total-price");
+
+  const $newTotalOrderTitle = document.createElement("span");
+  $newTotalOrderTitle.classList.add("total-order-title");
+  $newTotalOrderTitle.textContent = "Order total";
+
+  const $newTotalOrderPrice = document.createElement("span");
+  $newTotalOrderPrice.classList.add("total-order-price");
+
+  $newOrderDetailTotalPrice.appendChild($newTotalOrderTitle);
+  $newOrderDetailTotalPrice.appendChild($newTotalOrderPrice);
+
+  orders.forEach((item) => {
+    totalPrice += item.product.price * item.quantity;
+
+    const $newOrderDetailProductItem = document.createElement("li");
+    $newOrderDetailProductItem.classList.add("order-detail-product-item");
+
+    const $newOrderDetailProductImage = document.createElement("img");
+    $newOrderDetailProductImage.classList.add("order-detail-product-image");
+    $newOrderDetailProductImage.setAttribute("src", item.product.image);
+    $newOrderDetailProductImage.setAttribute("alt", "");
+
+    const $newOrderDetailProductName = document.createElement("span");
+    $newOrderDetailProductName.classList.add("order-detail-product-name");
+    $newOrderDetailProductName.textContent = item.product.name;
+
+    const $newOrderDetailProductQuantity = document.createElement("span");
+    $newOrderDetailProductQuantity.classList.add(
+      "order-detail-product-quantity"
+    );
+    $newOrderDetailProductQuantity.textContent = `${item.quantity}x`;
+
+    const $newOrderDetailProductUnitPrice = document.createElement("span");
+    $newOrderDetailProductUnitPrice.classList.add(
+      "order-detail-product-unit-price"
+    );
+    $newOrderDetailProductUnitPrice.textContent = `@ $${item.product.price}.00`;
+
+    const $newOrderDetailProductTotalPrice = document.createElement("span");
+    $newOrderDetailProductTotalPrice.classList.add(
+      "order-detail-product-total-price"
+    );
+    $newOrderDetailProductTotalPrice.textContent = `$${
+      item.product.price * item.quantity
+    }.00`;
+
+    $newTotalOrderPrice.textContent = `$${totalPrice}.00`;
+
+    $newOrderDetailProductItem.appendChild($newOrderDetailProductImage);
+    $newOrderDetailProductItem.appendChild($newOrderDetailProductName);
+    $newOrderDetailProductItem.appendChild($newOrderDetailProductQuantity);
+    $newOrderDetailProductItem.appendChild($newOrderDetailProductUnitPrice);
+    $newOrderDetailProductItem.appendChild($newOrderDetailProductTotalPrice);
+    $orderDetail.appendChild($newOrderDetailProductItem);
+    $orderDetail.appendChild($newOrderDetailTotalPrice);
   });
 }
 
@@ -362,15 +444,10 @@ function substractCartSize(
       item.price * item.count
     }.00`;
 
-    console.log(cartTotalPrice);
-    console.log(item.price);
-
     if (cartSize !== 0) {
       cartTotalPrice -= item.price;
       $totalOrderPrice.textContent = `$${cartTotalPrice}.00`;
     }
-
-    console.log(cartTotalPrice);
   } else {
     cartSize = 0;
     console.log(`Cart size is already ${cartSize}`);
@@ -414,12 +491,8 @@ function resetCartItem(
 async function tempGetToken() {
   const { email, password } = getUserInfo();
   const token = await loginUser(email, password);
-  // console.log(token);
 
   localStorage.setItem("token", token);
-
-  let localToken = localStorage.getItem("token");
-  console.log(localToken);
 }
 
 tempGetToken();
@@ -427,8 +500,14 @@ tempGetToken();
 $confirmOrderBtn.addEventListener("click", async (e) => {
   e.preventDefault();
 
+  $orderDetail.innerHTML = "";
+
   const order = await manageOrderContent();
-  sendOrder(order);
+  const confirmedOrders = await sendOrder(order);
+
+  createModalContent(confirmedOrders);
+
+  $orderModalWrapper.classList.remove("hidden");
 });
 
 // Document startup / cleanup

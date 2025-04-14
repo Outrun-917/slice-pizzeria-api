@@ -5,6 +5,7 @@ const $emptyBasket = document.querySelector(".empty-basket");
 const $basketsWithPizza = document.querySelector(".baskets-with-pizza");
 const $basketProducts = document.querySelector(".basket-products");
 const $totalOrderPrice = document.querySelector(".total-order-price");
+const $confirmOrderBtn = document.querySelector(".confirm-order-btn");
 
 let cartSize = 0;
 let cartTotalPrice = 0;
@@ -12,11 +13,85 @@ let cart = [];
 
 // Getting the products through the API
 async function getProducts() {
-  // const res = await fetch("http://10.59.122.27:3000/products");
-  const res = await fetch("../api/products.json");
+  const res = await fetch(
+    "https://prime-garfish-currently.ngrok-free.app/products",
+    {
+      headers: {
+        "ngrok-skip-browser-warning": "1",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  // const res = await fetch("../api/products.json");
   const data = await res.json();
 
   createProducts(data);
+}
+
+// Getting the token
+async function loginUser(email, password) {
+  if (!email || !password) {
+    return;
+  }
+
+  const res = await fetch(
+    "https://prime-garfish-currently.ngrok-free.app/auth/login",
+    {
+      method: "POST",
+      headers: {
+        "ngrok-skip-browser-warning": "1",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    }
+  );
+  const data = await res.json();
+
+  return data.access_token;
+}
+
+function getUserInfo() {
+  return {
+    email: "n.penfold@edenschool.fr",
+    password: "toto90",
+  };
+}
+
+// Sending the order
+async function sendOrder(order) {
+  const res = await fetch(
+    "https://prime-garfish-currently.ngrok-free.app/orders",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "ngrok-skip-browser-warning": "1",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        products: order,
+      }),
+    }
+  );
+  const data = await res.json();
+
+  console.log(data);
+}
+
+async function manageOrderContent() {
+  let orderContent = [];
+
+  cart.forEach((item) => {
+    orderContent = [
+      ...orderContent,
+      {
+        uuid: item.id,
+        quantity: item.count,
+      },
+    ];
+  });
+
+  return orderContent;
 }
 
 // Creating products with the API data
@@ -304,8 +379,6 @@ function substractCartSize(
 
 function resetCartItem(
   item,
-  $newBasketProductDetailsQuantity,
-  $newBasketProductDetailsTotalPrice,
   $newPizzaPicture,
   $newAddedToCartBtn,
   $newAddToCartBtn,
@@ -337,8 +410,30 @@ function resetCartItem(
   console.log(cart);
 }
 
+// Temporary
+async function tempGetToken() {
+  const { email, password } = getUserInfo();
+  const token = await loginUser(email, password);
+  // console.log(token);
+
+  localStorage.setItem("token", token);
+
+  let localToken = localStorage.getItem("token");
+  console.log(localToken);
+}
+
+tempGetToken();
+
+$confirmOrderBtn.addEventListener("click", async (e) => {
+  e.preventDefault();
+
+  const order = await manageOrderContent();
+  sendOrder(order);
+});
+
 // Document startup / cleanup
 document.addEventListener("DOMContentLoaded", () => {
   $pizzasWrapper.innerHTML = "";
+
   getProducts();
 });

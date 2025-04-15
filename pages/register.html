@@ -13,14 +13,33 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="./css/normalize.css" />
-    <link rel="stylesheet" href="./css/reset.css" />
-    <link rel="stylesheet" href="./css/login.css" />
+    <link rel="stylesheet" href="../css/normalize.css" />
+    <link rel="stylesheet" href="../css/reset.css" />
+    <link rel="stylesheet" href="../css/register.css" />
   </head>
   <body>
     <main>
       <h1>Slice Pizzeria - Create an account</h1>
-      <form class="login-form">
+      <form class="register-form">
+        <label for="firstname">First name: </label>
+        <input
+          id="input-firstname"
+          class=""
+          type="text"
+          placeholder="Enter your first name"
+          name="firstname"
+          required
+        />
+
+        <label for="lastname">Last name: </label>
+        <input
+          id="input-lastname"
+          type="text"
+          placeholder="Enter your last name"
+          name="lastname"
+          required
+        />
+
         <label for="email">Email: </label>
         <input
           id="input-email"
@@ -39,14 +58,13 @@
           required
         />
 
-        <input id="input-submit" type="submit" value="Login" />
+        <input id="input-submit" type="submit" value="Register" />
       </form>
-
       <p>
-        You do not have an account yet?
-        <a href="./pages/register.html">Click here to register</a>
+        You already have an account?
+        <a href="../index.html">Click here to login</a>
       </p>
     </main>
-    <script src="./js/login.js"></script>
+    <script src="../js/register.js"></script>
   </body>
 </html>

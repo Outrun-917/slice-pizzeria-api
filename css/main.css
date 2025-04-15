@@ -187,6 +187,18 @@ body {
   font-weight: 600;
 }
 
+.logout-btn {
+  background-color: var(--tia-maria);
+  color: var(--white);
+  text-decoration: none;
+  text-align: center;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  font-size: 20px;
+  width: 120px;
+  border-radius: 8px;
+}
+
 .confirm-order-btn,
 .new-order-btn {
   background-color: var(--tia-maria);

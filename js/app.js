@@ -7,6 +7,8 @@ const $basketProducts = document.querySelector(".basket-products");
 const $totalOrderPrice = document.querySelector(".total-order-price");
 const $confirmOrderBtn = document.querySelector(".confirm-order-btn");
 
+const $logoutBtn = document.querySelector(".logout-btn");
+
 const $orderModalWrapper = document.querySelector(".order-modal-wrapper");
 const $orderDetail = document.querySelector(".order-detail");
 const $newOrderBtn = document.querySelector(".new-order-btn");
@@ -459,6 +461,13 @@ $confirmOrderBtn.addEventListener("click", async (e) => {
   createModalContent(confirmedOrders);
 
   $orderModalWrapper.classList.remove("hidden");
+});
+
+$logoutBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  localStorage.removeItem("token");
+  window.location.assign("../index.html");
 });
 
 // Document startup / cleanup

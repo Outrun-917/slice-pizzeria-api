@@ -32,35 +32,6 @@ async function getProducts() {
   createProducts(data);
 }
 
-// Getting the token
-async function loginUser(email, password) {
-  if (!email || !password) {
-    return;
-  }
-
-  const res = await fetch(
-    "https://prime-garfish-currently.ngrok-free.app/auth/login",
-    {
-      method: "POST",
-      headers: {
-        "ngrok-skip-browser-warning": "1",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    }
-  );
-  const data = await res.json();
-
-  return data.access_token;
-}
-
-function getUserInfo() {
-  return {
-    email: "n.penfold@edenschool.fr",
-    password: "toto90",
-  };
-}
-
 // Sending the order
 async function sendOrder(order) {
   const res = await fetch(
@@ -199,8 +170,6 @@ function createProducts(products) {
       $newBasketProductItem.appendChild($newBasketProductRemoveIcon);
       $basketProducts.appendChild($newBasketProductItem);
 
-      console.log(cart);
-
       addCartSize(
         item,
         $newBasketProductDetailsQuantity,
@@ -225,8 +194,6 @@ function createProducts(products) {
 
         cart.splice(cart.indexOf(item), 1);
 
-        console.log(cart);
-
         substractCartSize(
           item,
           $newBasketProductDetailsQuantity,
@@ -239,8 +206,6 @@ function createProducts(products) {
         const item = cart.find((item) => item.id === product.id);
 
         item.count--;
-
-        console.log(cart);
 
         substractCartSize(
           item,
@@ -260,8 +225,6 @@ function createProducts(products) {
       const item = cart.find((item) => item.id === product.id);
 
       item.count++;
-
-      console.log(cart);
 
       addCartSize(
         item,
@@ -483,19 +446,7 @@ function resetCartItem(
   $newBasketProductItem.remove();
 
   cart.splice(cart.indexOf(item), 1);
-
-  console.log(cart);
 }
-
-// Temporary
-async function tempGetToken() {
-  const { email, password } = getUserInfo();
-  const token = await loginUser(email, password);
-
-  localStorage.setItem("token", token);
-}
-
-tempGetToken();
 
 $confirmOrderBtn.addEventListener("click", async (e) => {
   e.preventDefault();

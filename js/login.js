@@ -23,9 +23,9 @@ $loginForm.addEventListener("submit", async (e) => {
     );
 
     if (res.ok) {
-      const resData = res.json();
-      console.log(resData);
-      console.log(resData.access_token);
+      const resData = await res.json();
+      localStorage.setItem("token", resData.access_token);
+      window.location.assign("./pages/main.html");
     } else {
       const err = await res.json();
       console.log(`Erreur : ${err}`);

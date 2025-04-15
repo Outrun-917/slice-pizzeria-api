@@ -516,9 +516,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   getProducts();
 });
-
-document.addEventListener("click", (e) => {
-  e.preventDefault();
-
-  console.log("Page clicked");
-});

@@ -28,7 +28,6 @@ async function getProducts() {
       },
     }
   );
-  // const res = await fetch("../api/products.json");
   const data = await res.json();
 
   createProducts(data);
